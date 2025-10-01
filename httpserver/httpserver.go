@@ -2,13 +2,13 @@ package httpserver
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -18,15 +18,26 @@ type Server struct {
 	server *http.Server
 }
 
-func New(httpServer *http.Server) (*Server, error) {
-	if httpServer == nil {
-		return nil, errors.New("http.Server cannot be nil")
+func New(cfg *Config) (*Server, error) {
+	if cfg == nil {
+		cfg = &Config{
+			Port:         "8080",
+			ReadTimeout:  15 * time.Second,
+			WriteTimeout: 15 * time.Second,
+			IdleTimeout:  60 * time.Second,
+		}
 	}
+
 	r := chi.NewRouter()
-	httpServer.Handler = r
 	return &Server{
 		router: r,
-		server: httpServer,
+		server: &http.Server{
+			Addr:         ":" + cfg.Port,
+			Handler:      r,
+			ReadTimeout:  cfg.ReadTimeout,
+			WriteTimeout: cfg.WriteTimeout,
+			IdleTimeout:  cfg.IdleTimeout,
+		},
 	}, nil
 }
 
