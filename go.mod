@@ -1,4 +1,4 @@
-module rizki-go-pkg
+module github.com/rizkysr90/rizki-go-pkg
 
 go 1.24.3
 
